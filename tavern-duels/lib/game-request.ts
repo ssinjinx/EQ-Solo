@@ -1,3 +1,4 @@
+declare const __TAVERN_API_BASE__: string;
 export class GameRequestError extends Error {
   constructor(message:string, public kind:'session'|'connection'|'rules'){super(message);}
 }
@@ -6,7 +7,8 @@ export class GameRequestError extends Error {
 export async function gameRequest(body:unknown, fetcher:typeof fetch=fetch):Promise<any>{
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),15000);
  try{
-  const response=await fetcher('/api/game',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+  const endpoint=typeof __TAVERN_API_BASE__==='string'?__TAVERN_API_BASE__:'/api/game';
+  const response=await fetcher(endpoint,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body),signal:controller.signal});
   if(response.status===401||response.redirected&&/signin|login|oauth/.test(response.url))throw new GameRequestError('Your sign-in needs to be renewed. Your saved duel will remain available.','session');
   const raw=await response.text();
   let data:any;try{data=JSON.parse(raw);}catch{throw new GameRequestError('The connection returned an incomplete response. Reload your saved duel to continue.','connection');}

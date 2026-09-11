@@ -22,9 +22,9 @@ public sealed class TavernWindow : Form {
     readonly WebView2 web = new WebView2();
     readonly Timer watch = new Timer();
     readonly Label status = new Label();
-    TavernWindow(IntPtr parent, string address, string directory) {
+    internal TavernWindow(IntPtr parent, string address, string directory, bool live = false) {
         eq = parent; url = address; dataDir = directory;
-        Text = "EQ Dream | Tavern Duels (test)";
+        Text = live ? "EQ Dream | Tavern Duels" : "EQ Dream | Tavern Duels (test)";
         TopLevel = false; FormBorderStyle = FormBorderStyle.Sizable;
         MinimizeBox = false; MaximizeBox = false; ShowInTaskbar = false;
         BackColor = Color.FromArgb(16,23,22); MinimumSize = new Size(640,420);

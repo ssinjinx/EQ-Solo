@@ -48,3 +48,5 @@ next-env.d.ts
 /.eq-test-state/
 /eq-test/runtime/
 /eq-test/local-config.json
+/dist-live/
+/live/runtime/
