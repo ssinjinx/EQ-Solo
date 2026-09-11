@@ -60,7 +60,7 @@ public sealed class TavernWindow : Form {
             web.CoreWebView2.PermissionRequested += delegate(object sender, CoreWebView2PermissionRequestedEventArgs e) { e.State = CoreWebView2PermissionState.Deny; };
             web.CoreWebView2.NavigationCompleted += delegate(object sender, CoreWebView2NavigationCompletedEventArgs e) {
                 status.Visible = !e.IsSuccess;
-                if(!e.IsSuccess)status.Text = "Unable to connect. Close this window and use /bored again.";
+                if(!e.IsSuccess)status.Text = "Unable to connect. Close this window and use /tavern again.";
             };
             web.CoreWebView2.Navigate(url);
         } catch(Exception e) { status.Text = "Tavern Duels could not open: "+e.Message; Console.Error.WriteLine(e.Message); }

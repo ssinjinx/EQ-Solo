@@ -17,14 +17,14 @@ local function request(action, character)
     os.remove(queue .. '/request-' .. tostring(pid) .. '.json')
     os.rename(queue .. '/request-' .. tostring(pid) .. '.tmp', queue .. '/request-' .. tostring(pid) .. '.json')
 end
-mq.bind('/bored', function(command)
+mq.bind('/tavern', function(command)
     if command and command:lower() == 'close' then request('close', lastCharacter); return end
     if mq.TLO.MacroQuest.GameState() ~= 'INGAME' then print('[Tavern Duels] Log into your test character first.'); return end
     lastCharacter = mq.TLO.Me.CleanName()
     request('toggle', lastCharacter)
-    print('[Tavern Duels] Window toggled. Use /bored close to close it.')
+    print('[Tavern Duels] Window toggled. Use /tavern close to close it.')
 end)
-print('[Tavern Duels] Ready. Type /bored to open the card game.')
+print('[Tavern Duels] Ready. Type /tavern to open the card game.')
 while true do
     local inGame = mq.TLO.MacroQuest.GameState() == 'INGAME'
     local current = inGame and mq.TLO.Me.CleanName() or ''

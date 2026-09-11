@@ -1,6 +1,6 @@
 # Tavern Duels in EQ — local test integration
 
-This prototype keeps the original battlefield, decks, card art, packs and trading screens. `/bored` opens them in a resizable WebView2 child window inside the **NMS-Local** EQ test client. Close the window with its X, or type `/bored close` in EQ. Typing `/bored` again toggles it.
+This prototype keeps the original battlefield, decks, card art, packs and trading screens. `/tavern` opens them in a resizable WebView2 child window inside the **NMS-Local** EQ test client. Close the window with its X, or type `/tavern close` in EQ. Typing `/tavern` again toggles it.
 
 ## Setup on the test machine
 
@@ -19,7 +19,7 @@ The launcher accepts `-NodePath`, `-ClientPath` and `-MacroQuestPath` if needed.
 
 ```text
 /lua run eqdream_tavern
-/bored
+/tavern
 ```
 
 Choose your starter in Packs. Open your welcome packs, select a deck and start a practice duel. The service saves after actions; closing the window does not erase your collection or duel. Zoning or leaving the character closes the window. To stop the bridge, close the window and use `/lua stop eqdream_tavern`.

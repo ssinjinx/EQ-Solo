@@ -27,13 +27,13 @@ export async function startServer({port=17865,state=resolve(root,'.eq-test-state
    if(req.method==='GET'&&url.pathname==='/health')return reply(200,{service:'eq-tavern-test',ready:true});
    if(req.method==='GET'&&url.pathname==='/bootstrap'){
     const key=url.searchParams.get('ticket'),ticket=tickets.get(key);tickets.delete(key);
-    if(!ticket||ticket.expires<Date.now())return reply(401,{error:'Reopen the window with /bored.'});
+    if(!ticket||ticket.expires<Date.now())return reply(401,{error:'Reopen the window with /tavern.'});
     const session=secret();sessions.set(session,{user:ticket.user,expires:Date.now()+12*3600000});
     res.writeHead(303,{'Location':'/','Set-Cookie':`eq_tavern=${session}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200`});return res.end();
    }
    const cookie=(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('eq_tavern='));
    const session=sessions.get(cookie?.slice(10));
-   if(!session||session.expires<Date.now())return reply(401,{error:'Open Tavern Duels from the test character with /bored.'});
+   if(!session||session.expires<Date.now())return reply(401,{error:'Open Tavern Duels from the test character with /tavern.'});
    if(req.method==='POST'&&url.pathname==='/api/game'){
     if(req.headers.origin!==origin||!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return reply(403,{error:'Invalid request origin.'});
     let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>32768)return reply(413,{error:'Request too large.'});}

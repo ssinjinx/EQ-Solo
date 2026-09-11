@@ -29,4 +29,4 @@ if (!$ready) {
     }
 }
 if (!$ready) { throw 'Tavern Duels did not become ready.' }
-Write-Host 'Tavern Duels test service is ready. In NMS-Local, run /lua run eqdream_tavern and then /bored.'
+Write-Host 'Tavern Duels test service is ready. In NMS-Local, run /lua run eqdream_tavern and then /tavern.'
