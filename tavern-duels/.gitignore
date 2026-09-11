@@ -44,3 +44,7 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+/dist-eq/
+/.eq-test-state/
+/eq-test/runtime/
+/eq-test/local-config.json
