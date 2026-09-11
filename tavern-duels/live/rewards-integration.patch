@@ -1,0 +1,19 @@
+--- a/quests/plugins/EQDreamRelease.pm
++++ b/quests/plugins/EQDreamRelease.pm
+@@ -22,3 +22,3 @@
+ sub role {
+- my ($n)=@_;
+- return 'normal' unless $n && $n->GetHP()>0 && !$n->GetOwnerID() && !$n->IsCharmed()
++ my ($n,$include_dead)=@_;
++ return 'normal' unless $n && ($include_dead || $n->GetHP()>0) && !$n->GetOwnerID() && !$n->IsCharmed()
+--- a/quests/global/global_npc.pl
++++ b/quests/global/global_npc.pl
+@@ -3,1 +3,2 @@
+ use EQDreamRelease;
++use EQDreamTavernRewards;
+@@ -211,3 +212,5 @@
+ sub EVENT_KILLED_MERIT {
+     plugin::ProcessSlayerCredit($client, $npc, $entity_list);
++    eval { EQDreamTavernRewards::killed_merit($client, $npc); };
++    warn "Tavern first-kill hook: $@" if $@;
+ }

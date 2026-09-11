@@ -15,6 +15,18 @@ Live cards are stored on the server and tied to the EQ character ID. All players
 
 ## Maintainers
 
+### First-kill packs (September 11, 2026)
+
+Each character earns **1 standard pack for the first credited kill of each named NPC**, or **5 packs for each raid boss**. Raid rewards replace the named reward. Repeat kills of the same NPC type, including another instance, do not grant more packs. Tracking begins with this release; earlier kills are not backfilled. Open `/tavern` and visit Packs after the reward message. No new player patch is required.
+
+The global `EVENT_KILLED_MERIT` hook calls `EQDreamTavernRewards::killed_merit($client,$npc)` after existing Slayer credit. It uses the game's credited group/raid/self selection and `EQDreamRelease::role($npc,1)` to reuse encounter classification after death. The optional second argument only bypasses the positive-HP test; pets, charmed mobs, summons and noncombat classes remain excluded. Existing encounter calls keep their original behavior. Local boss quest handlers still execute alongside the global handler.
+
+Install `EQDreamTavernRewards.pm` in the quest plugin directory and apply `rewards-integration.patch` to the existing live files. The live service configuration gains `rewards: /var/lib/eqdream-tavern/rewards`. Create that directory and its `pending` and `receipts` children as root, with group `eqdream-tavern` and mode `2770`. Rebuild the service, restart only the card service, then reload quests globally.
+
+The trusted filesystem outbox publishes complete, synced events without replacing an existing event. The service processes up to 128 events every two seconds. A SQLite transaction inserts the unique `(character_id,npc_type_id)` ledger row and all reward packs together. Retries after service interruption or a crash cannot grant extra packs. Receipt files suppress repeat notifications; the database ledger is the authority. Rewards do not consume welcome packs. There is no public reward-grant API. Back up `cards.sqlite` **and the rewards directory** together; preserve pending events during recovery.
+
+Checks: `node live/rewards-test.mjs`, `node live/test.mjs`, and `REWARD_PLUGIN_PATH=<staged plugin directory> perl live/rewards-test.pl` with the server's quest plugin dependencies on `PERL5LIB`. Live delivery and replay were verified using a reserved synthetic ID, then its test records were removed. Actual combat credit uses the existing EQ engine hook.
+
 `eqdream_tavern_live.lua` registers `/tavern`, requests `!tavern` via the existing player speech hook, consumes the private `[Tavern Access]` message and launches the WebView2 host. The native host embeds in the requesting EQ process and permits only the configured live HTTPS origin. Test clients use the separate `eq-test` bridge.
 
 The server-only Perl plugin uses OS randomness, a 60-second ticket and the authenticated character's numeric ID. A root-created ticket directory with the service group gives the dedicated service access. HTTP redemption atomically claims a ticket and issues a secure, HTTP-only, same-site cookie. Session tokens are hashed at rest. The web service ignores client-provided identity headers, validates request origins, limits request size/rate and reuses the original authoritative game rules. All gameplay mutations are serialized, with SQLite transactions for card exchanges.

@@ -5,11 +5,15 @@ import {resolve,sep,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {database} from './database.mjs';
 import {gameService} from './rules/game-service.mjs';
+import {rewardWorker} from './rewards.mjs';
 const hash=s=>createHash('sha256').update(s).digest('hex');
-export async function startServer({port=17867,state,tickets,origin='https://triune.siliconsoul.cloud',secure=true}){
+export async function startServer({port=17867,state,tickets,rewards,origin='https://triune.siliconsoul.cloud',secure=true}){
  mkdirSync(state,{recursive:true});mkdirSync(tickets,{recursive:true});
  const db=database(resolve(state,'cards.sqlite'));
  await db.prepare('CREATE TABLE IF NOT EXISTS tavern_sessions(id TEXT PRIMARY KEY, player TEXT NOT NULL, expires INTEGER NOT NULL)').run();
+ const reward=rewards?rewardWorker(resolve(state,'cards.sqlite'),rewards):null;
+ const deliver=()=>{try{reward?.drain()}catch(e){console.error('Tavern reward worker:',e.message)}};
+ deliver();const rewardTimer=reward?setInterval(deliver,2000):null;
  let serial=Promise.resolve();const web=resolve(fileURLToPath(new URL('./web',import.meta.url)));
  const limits=new Map();
  const server=http.createServer(async(req,res)=>{
@@ -57,7 +61,7 @@ export async function startServer({port=17867,state,tickets,origin='https://triu
    for(const [id,l]of limits)if(Date.now()-l.time>60000)limits.delete(id);
   }catch{}
  },60000);
- return {port:server.address().port,async close(){clearInterval(cleanup);await new Promise(ok=>server.close(ok));await serial;db.close()}};
+ return {port:server.address().port,async close(){clearInterval(cleanup);clearInterval(rewardTimer);await new Promise(ok=>server.close(ok));await serial;reward?.close();db.close()}};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const app=await startServer(JSON.parse(readFileSync(process.argv[2],'utf8')));console.log('Tavern Duels live service ready.');
